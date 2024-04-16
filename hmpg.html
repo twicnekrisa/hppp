@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+    <script>
+function get_browser() {
+    var ua = navigator.userAgent;
+    var tem;
+    var match = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    var os;
+
+    var getOS = function() {
+        var os;
+
+        if (ua.indexOf("Windows NT") !== -1) {
+            os = "Windows";
+        } else if (ua.indexOf("Mac OS X") !== -1) {
+            os = "MacOS";
+        } else if (ua.indexOf("Android") !== -1) {
+            os = "Android";
+        } else if (ua.indexOf("Linux") !== -1) {
+            os = "Linux";
+        } else {
+            os = "Unknown";
+        }
+
+        return os;
+    };
+
+    if (/trident/i.test(match[1])) {
+        tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return {
+            name: 'IE',
+            version: (tem[1] || ''),
+            os: getOS()
+        };
+    }
+
+    if (match[1] === 'Chrome') {
+        tem = ua.match(/\bOPR\/(\d+)/);
+        if (tem != null) {
+            return {
+                name: 'Opera',
+                version: tem[1],
+                os: getOS()
+            };
+        }
+    }
+
+    match = match[2] ? [match[1], match[2]] : [navigator.appName, navigator.appVersion, '-?'];
+    if ((tem = ua.match(/version\/(\d+)/i)) != null) {
+        match.splice(1, 1, tem[1]);
+    }
+
+    return {
+        name: match[0],
+        version: match[1],
+        os: getOS()
+    };
+}
+
+var browserInfo = get_browser();
+
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'http://192.168.1.47/savedt.php', true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.send(JSON.stringify({ browser: browserInfo.name, version: browserInfo.version, os: browserInfo.os }));
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+
+        console.log('');
+
+        window.location.href = 'https://www.youtube.com';
+    }
+};
+    </script>
+</body>
+</html>
